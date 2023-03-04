@@ -1,11 +1,16 @@
 class APIFeatures {
-  constructor(query, queryString) {
+  query: any;
+  queryString: any;
+  constructor(query: any, queryString: any) {
     this.query = query;
     this.queryString = queryString;
   }
 
   filter() {
     const queryObj = { ...this.queryString }; //replacing {...req.query} with {...this.queryString}
+
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
 
     let queryStr = JSON.stringify(queryObj);
 
@@ -53,4 +58,4 @@ class APIFeatures {
   }
 }
 
-module.exports = APIFeatures;
+export default APIFeatures;
