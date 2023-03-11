@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
+import path from 'path';
 import express from 'express';
 import morgan from 'morgan';
 import AppError from './utils/appError';
@@ -8,20 +9,31 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
+import cookieParser from 'cookie-parser';
 //Exporting app to supertest
 const app = express();
+
+app.set('view engine', 'pug');
+// Better to use the path using path module instead of below code
+// app.set('views','./views');
+app.set('views', path.join(__dirname, 'views'));
 
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import reviewRouter from './routes/reviewRoutes';
+import viewRouter from './routes/viewRoutes';
 
 //1.GLOBAL MIDDLEWARES
+
+//Serving static files
+// app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Set security http headers
 
 //when we call helmet() it will return a function waiting until it is called
 //Need to place this one very early in the app
-app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: 'same-origin' }));
 
 //Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -42,6 +54,10 @@ app.use('/api', limiter);
 //Body parser, reading data from body into req.body
 //Setting the size of the body to 10kb
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
+//To parse data from the url.Because form sends data to the server as urlencoded
+//we need this middleware to parse data from urlencoded form
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 //Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -65,9 +81,6 @@ app.use(
   })
 );
 
-//Serving static files
-app.use(express.static(`${__dirname}/public`));
-
 //Need to use app.use to write middleware and there has to be a third argument (convention is next)
 //Never forget to use next() in the middleware
 
@@ -77,7 +90,12 @@ app.use((req, res, next) => {
   next();
 });
 
+///ROUTES
+
 // Mounting routers
+
+app.use('/', viewRouter);
+
 app.use('/api/v1/tours', tourRouter);
 
 app.use('/api/v1/users', userRouter);

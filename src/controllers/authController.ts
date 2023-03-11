@@ -59,6 +59,7 @@ const createSendToken = (user: any, statusCode: number, res: Response) => {
   //we're not saving to the database after setting user.password = undefined .
   //We set it to undefined before sending the response to the client.
   user.password = undefined;
+  user.verifyToken = undefined;
 
   res.status(statusCode).json({ status: 'success', token, data: { user } });
 };
@@ -160,6 +161,16 @@ export const login: RequestHandler = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+export const logout: RequestHandler = (req, res, next) => {
+  // res.cookie('jwt', 'loggedout', {
+  //   expires: new Date(Date.now() + 10 * 1000),
+  //   httpOnly: true,
+  // });
+  // clearing the cookie value via built-in express function
+  res.clearCookie('jwt');
+  res.status(200).json({ status: 'success' });
+};
+
 export const protect = catchAsync(async (req, res, next) => {
   //1) Getting token and check of it's there
   let token;
@@ -168,6 +179,8 @@ export const protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   //401 is for unauthorized
@@ -228,8 +241,65 @@ export const protect = catchAsync(async (req, res, next) => {
   //Request object travel from middleware to middleware
   //So if we want to pass data to another middleware simply put data to req object
   req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
+
+//Only for rendered pages, no errors!
+//For our rendered website, token is coming from cookie. No token sent through header.
+//token will be sent through header only for API
+export const isLoggedIn: RequestHandler = async (req, res, next) => {
+  try {
+    if (req.cookies.jwt) {
+      //1) verification of token
+      const jwtVerifyPromise = (token: string, secret: string) => {
+        return new Promise((resolve, reject) => {
+          jwt.verify(token, secret, {}, (err, payload) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(payload);
+            }
+          });
+        });
+      };
+
+      interface JwtPayload {
+        id: string;
+        //key should be a string but values can be any type
+        [key: string]: any;
+      }
+
+      const decoded = (await jwtVerifyPromise(
+        req.cookies.jwt,
+        process.env.JWT_SECRET as string
+      )) as JwtPayload;
+
+      //We don't need to return any errors
+
+      //2) Check if user still exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+
+      //3)Check if user changed password after the token was issued
+
+      if (currentUser.changesPasswordAfter(decoded.iat)) {
+        return next();
+      }
+      //There is a logged in user
+      //Each pug template has access to res.locals
+      res.locals.user = currentUser;
+
+      return next();
+    }
+    //if no cookie we directly go to next middleware
+    next();
+  } catch (err) {
+    return next();
+  }
+};
 
 export const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -341,7 +411,6 @@ export const updatePassword: RequestHandler = catchAsync(
     //Password is by default not sent in the req object
 
     const user = await User.findById(req.user._id).select('+password');
-    console.log(user);
 
     if (!user) {
       return next(new AppError('The user does not exist', 400));

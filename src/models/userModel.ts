@@ -123,7 +123,7 @@ userSchema.methods.changesPasswordAfter = function (JWTTimeStamp: number) {
   if (this.passwordChangedAt) {
     //Converting to passwordChangedAt to seconds because JWTTimeStamp is in seconds
     const changedTimestamp = this.passwordChangedAt.getTime() / 1000;
-    console.log(changedTimestamp, JWTTimeStamp);
+    // console.log(changedTimestamp, JWTTimeStamp);
     //Below line returns true if password changed and false if password not changed
     return JWTTimeStamp < changedTimestamp;
   }
