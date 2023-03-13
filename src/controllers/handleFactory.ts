@@ -64,71 +64,24 @@ export const deleteOne = (Model: Model<any>) =>
     });
   });
 
-interface ObjectType {
-  [key: string]: any;
-}
-
-const filterObj = (obj: ObjectType, ...allowedFields: string[]) => {
-  const newObj: ObjectType = {};
-  const notAllowedFields: string[] = [];
-  //Object.keys(obj) will return and array containing all the key names
-  Object.keys(obj).forEach((el) => {
-    if (allowedFields.includes(el)) {
-      newObj[el] = obj[el];
-    } else {
-      notAllowedFields.push(el);
-    }
-  });
-  return { allowed: newObj, notAllowed: notAllowedFields };
-};
-
-export const updateOne = (Model: Model<any>, updateFields?: string[]) =>
+export const updateOne = (Model: Model<any>) =>
   catchAsync(async (req, res, next) => {
-    // Allowing only specified fields to update
+    //new:true will return the updated document
+    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-    if (updateFields) {
-      const filteredBody = filterObj(req.body, ...updateFields);
-      const { allowed, notAllowed } = filteredBody;
+    const modelName = Model.modelName.toLowerCase();
 
-      if (Object.keys(allowed).length === 0 && notAllowed.length > 0) {
-        res.status(400).json({
-          status: 'fail',
-          message: `Not allowed fields found: ${notAllowed.join(', ')}`,
-        });
-      }
-
-      const updatedDoc = await Model.findByIdAndUpdate(req.params.id, allowed, {
-        new: true,
-        runValidators: true,
-      });
-
-      if (notAllowed.length > 0) {
-        res.status(400).json({
-          status: 'partial',
-          message: `Unable to update these fields: ${notAllowed.join(', ')}`,
-          data: { doc: updatedDoc },
-        });
-      } else {
-        res.status(200).json({ status: 'success', data: { user: updatedDoc } });
-      }
-    } else {
-      //new:true will return the updated document
-      const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
-
-      const modelName = Model.modelName.toLowerCase();
-
-      if (!doc) {
-        return next(new AppError('No document found with that ID ', 404));
-      }
-
-      res.status(200).json({
-        status: 'success',
-        data: { [modelName]: doc },
-      });
+    if (!doc) {
+      return next(new AppError('No document found with that ID ', 404));
     }
+
+    res.status(200).json({
+      status: 'success',
+      data: { [modelName]: doc },
+    });
   });
 
 export const createOne = (Model: Model<any>) =>

@@ -22,7 +22,12 @@ router.get('/me', userController.getMe, userController.getUser);
 //We are using authController.protect because we are passing user in that controller
 router.patch('/updateMyPassword', authController.updatePassword);
 
-router.patch('/updateMe', userController.updateMe);
+router.patch(
+  '/updateMe',
+  userController.uploadUserPhoto,
+  userController.resizeUserPhoto,
+  userController.updateMe
+);
 router.delete('/deleteMe', userController.deleteMe);
 
 //Allowing only users to access below routes in addition to protection

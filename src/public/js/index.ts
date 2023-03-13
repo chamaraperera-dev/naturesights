@@ -51,13 +51,60 @@ if (logOutBtn) {
 }
 
 if (updateDataForm) {
-  updateDataForm.addEventListener('submit', (e) => {
+  //Show preview when user upload a photo
+  const userImgEl = document.querySelector(
+    '.form__user-photo'
+  ) as HTMLImageElement;
+  const userImgInputEl = document.getElementById('photo') as HTMLInputElement;
+
+  const handleDisplayUserPhoto = (e: any) => {
+    const imgFile = e.target.files?.[0];
+
+    if (!imgFile?.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+
+    reader.addEventListener('load', () => {
+      if (typeof reader.result === 'string')
+        userImgEl.setAttribute('src', reader.result);
+    });
+
+    reader.readAsDataURL(imgFile);
+  };
+
+  userImgInputEl.addEventListener('change', handleDisplayUserPhoto);
+
+  updateDataForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = (document.getElementById('name') as HTMLInputElement).value;
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    updateSettings({ name, email }, 'data');
+    const form = new FormData();
+    form.append(
+      'name',
+      (document.getElementById('name') as HTMLInputElement).value
+    );
+    form.append(
+      'email',
+      (document.getElementById('email') as HTMLInputElement).value
+    );
+
+    const photoInput = document.getElementById('photo') as HTMLInputElement;
+
+    const photoFile = photoInput?.files?.[0] || null;
+    if (photoFile !== null) {
+      form.append('photo', photoFile);
+    }
+
+    // const name = (document.getElementById('name') as HTMLInputElement).value;
+    // const email = (document.getElementById('email') as HTMLInputElement).value;
+    //AJAX request to update data recognize the form as an object
+    await updateSettings(form, 'data');
+
+    //Using async to reload the page after the update
+    setTimeout(() => {
+      location.reload();
+    }, 1500);
   });
 }
+
 if (updatePasswordForm) {
   updatePasswordForm.addEventListener('submit', async (e) => {
     e.preventDefault();

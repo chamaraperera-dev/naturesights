@@ -1,9 +1,59 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import User from '../models/userModel';
+import multer from 'multer';
+import sharp from 'sharp';
 import catchAsync from '../utils/catchAsync';
 import { RequestHandler } from 'express';
+import { Request } from 'express';
 import AppError from '../utils/appError';
 import * as factory from './handleFactory';
+
+// cb callback function is similar to next function in express
+
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'dist/public/img/users');
+//   },
+//   filename: (req, file, cb) => {
+//     //user-userId-timestamp.jpeg
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+//   },
+// });
+
+// To store the image in memory instead of disk
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req: Request, file: Express.Multer.File, cb: any) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image ! Please upload only images.', 400), false);
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+export const uploadUserPhoto = upload.single('photo');
+
+export const resizeUserPhoto: RequestHandler = catchAsync(
+  async (req, res, next) => {
+    if (!req.file) return next();
+
+    //No need to get the file extension as we are using sharp to convert the image to jpeg
+    //Need to allocate file name to req.file.filename because we are using it in the updateMe middleware
+    req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+
+    //Reading file from the memory
+    await sharp(req.file.buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      //Need full file path to store the image
+      .toFile(`dist/public/img/users/${req.file.filename}`);
+    next();
+  }
+);
 
 //Below function will accept an object and other rest parameters
 // The function performs the following steps:
@@ -64,6 +114,8 @@ export const updateMe: RequestHandler = catchAsync(async (req, res, next) => {
   //2) Filtered out unwanted field name that are not allowed to be updated
 
   const filteredBody = filterObj(req.body, 'name', 'email');
+  //Adding photo to filteredBody
+  if (req.file) filteredBody.allowed.photo = req.file.filename;
   const { allowed, notAllowed } = filteredBody;
 
   //3)Update user document

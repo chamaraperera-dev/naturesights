@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // const fs = require('fs');
+import multer from 'multer';
+import sharp from 'sharp';
 import { Request, Response, NextFunction } from 'express';
 import { RequestHandler } from 'express';
 
@@ -9,6 +11,80 @@ import AppError from '../utils/appError';
 import * as factory from './handleFactory';
 
 import catchAsync from '../utils/catchAsync';
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req: Request, file: Express.Multer.File, cb: any) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image ! Please upload only images.', 400), false);
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+export const uploadTourImages = upload.fields([
+  {
+    name: 'imageCover',
+    maxCount: 1,
+  },
+  { name: 'images', maxCount: 3 },
+]);
+
+console.log(uploadTourImages);
+
+//if we have only one image
+// upload.single('image');  req.file
+
+//If we have multiple images with the same name
+// upload.array('images', 5); req.files
+
+export const resizeTourImages: RequestHandler = catchAsync(
+  async (req: any, res, next) => {
+    const hasImageCover = req.files.imageCover;
+    const hasImages = req.files.images;
+
+    //1)Cover Image
+
+    //Sending imageCoverFileName to the req.body so that it can be saved in the database
+
+    if (hasImageCover) {
+      req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+      await sharp(req.files.imageCover[0].buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`dist/public/img/tours/${req.body.imageCover}`);
+    }
+
+    //2)Images
+
+    if (hasImages) {
+      req.body.images = [];
+      //We cannot use async await here because we are using forEach loop
+      //async await inside the callback function of the forEach loop does not wait for the async function to complete and it will move on to the next iteration
+      //Since it is a async function it will return a promise and if we use map we can save an array of promises and then use Promise.all to wait for all the promises to complete
+
+      // Since forEach() method does not wait for the completion of asynchronous code, map() method is used instead to create an array of promises and Promise.all() method is used to wait for all promises to complete before moving on to the next line of code
+
+      await Promise.all(
+        req.files.images.map(async (file: any, i: string) => {
+          const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+          await sharp(file.buffer)
+            .resize(2000, 1333)
+            .toFormat('jpeg')
+            .jpeg({ quality: 90 })
+            .toFile(`dist/public/img/tours/${filename}`);
+
+          req.body.images.push(filename);
+        })
+      );
+    }
+
+    next();
+  }
+);
 
 //Alias middleware
 //It will add these to the query before hitting the getAllTours handler
