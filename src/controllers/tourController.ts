@@ -32,8 +32,6 @@ export const uploadTourImages = upload.fields([
   { name: 'images', maxCount: 3 },
 ]);
 
-console.log(uploadTourImages);
-
 //if we have only one image
 // upload.single('image');  req.file
 

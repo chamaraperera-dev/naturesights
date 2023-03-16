@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Tour from '../models/tourModel';
 import User from '../models/userModel';
+import Booking from '../models/bookingModel';
 import catchAsync from '../utils/catchAsync';
 import { RequestHandler } from 'express';
 import AppError from '../utils/appError';
@@ -70,3 +71,14 @@ export const getAccount: RequestHandler = (req, res) => {
 //       .render('account', { title: 'Your account', user: updatedUser });
 //   }
 // );
+
+export const getMyTours: RequestHandler = catchAsync(async (req, res, next) => {
+  //1)Find all bookings
+  const bookings = await Booking.find({ user: req.user.id });
+  //2)Find tours with the returned IDs
+  //Map will create an array of all the tour IDs
+  const tourIDs = bookings.map((el: any) => el.tour);
+  //Find all tours with the returned IDs using the $in operator
+  const tours = await Tour.find({ _id: { $in: tourIDs } });
+  res.status(200).render('overview', { title: 'My Tours', tours });
+});

@@ -17,7 +17,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/appError';
-import sendEmail from '../utils/email';
+import { Email } from '../utils/email';
 import bcrypt from 'bcryptjs';
 import Review from '../models/reviewModel';
 
@@ -75,6 +75,11 @@ export const signup = catchAsync(async (req, res, next) => {
     photo: req.body.photo,
   });
 
+  const url = `${req.protocol}://${req.get('host')}/me`;
+
+  //Send welcome is an async function so we have to await
+  await new Email(newUser, url).sendWelcome();
+
   const verifyToken = newUser.verifyEmailToken();
 
   await newUser.save({ validateModifiedOnly: true });
@@ -88,11 +93,11 @@ export const signup = catchAsync(async (req, res, next) => {
   //Send email will return a promise .Therefore we need to await
 
   try {
-    await sendEmail({
-      email: newUser.email,
-      subject: 'Your email confirm token',
-      message,
-    });
+    // await Email({
+    //   email: newUser.email,
+    //   subject: 'Your email confirm token',
+    //   message,
+    // });
   } catch (err) {
     newUser.verifyToken = undefined;
     await newUser.save({ validateModifiedOnly: true });
@@ -336,21 +341,14 @@ export const forgotPassword: RequestHandler = catchAsync(
     //3)Send it to user's email
     //We are only sending the plain token
     //Then we compare it with the encrypted token
-    const resetURL = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/users/resetPassword/${resetToken}`;
 
-    const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to:${resetURL}.\n If you didn't forget your password,
-    please ignore this email`;
     //Send email will return a promise .Therefore we need to await
 
     try {
-      await sendEmail({
-        email: user.email,
-        subject: 'Your password reset token(valid for 10 min',
-        message,
-      });
-      //We are not sending email in the below response
+      const resetURL = `${req.protocol}://${req.get(
+        'host'
+      )}/api/v1/users/resetPassword/${resetToken}`;
+      await new Email(user, resetURL).sendPasswordReset();
       res
         .status(200)
         .json({ status: 'success', message: 'Token sent to email' });

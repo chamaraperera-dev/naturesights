@@ -46,6 +46,7 @@ export const getOne = (Model: Model<any>, popOptions?: popOptionsType) =>
     if (!doc) {
       return next(new AppError('No document found with that ID ', 404));
     }
+    doc.verifyToken = undefined; //To hide verifyToken from the response
     res.status(200).json({ status: 'success', results: doc });
   });
 

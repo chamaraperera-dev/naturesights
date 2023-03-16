@@ -7,7 +7,7 @@ process.on('uncaughtException', (err: any) => {
   process.exit(1);
 });
 
-dotenv.config({ path: './config.env' });
+dotenv.config({ path: './.env' });
 import app from './app';
 
 let DB = '';

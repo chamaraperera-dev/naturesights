@@ -2,6 +2,7 @@ import { login, logout } from './login';
 import { signup } from './signup';
 import { updateSettings } from './updateSettings';
 import { displayMap } from './mapbox';
+import { bookTour } from './stripe';
 
 interface Location {
   day: number;
@@ -16,6 +17,7 @@ const logOutBtn = document.querySelector('.nav__el--logout');
 const updateDataForm = document.querySelector('.form-user-data');
 const updatePasswordForm = document.querySelector('.form-user-password');
 const signUpForm = document.querySelector('.form--signup');
+const bookBtn = document.getElementById('book-tour');
 
 if (loginForm) {
   loginForm.addEventListener('submit', (e) => {
@@ -149,5 +151,14 @@ if (signUpForm) {
       document.getElementById('password-confirm') as HTMLInputElement
     ).value;
     signup(name, email, password, passwordConfirm);
+  });
+}
+
+if (bookBtn) {
+  bookBtn.addEventListener('click', (e: any) => {
+    e.target.textContent = 'Processing...';
+    //To access data attribute in tour.pug template
+    const { tourId } = e.target.dataset;
+    bookTour(tourId);
   });
 }

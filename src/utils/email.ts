@@ -1,33 +1,78 @@
 import nodemailer from 'nodemailer';
+import pug from 'pug';
+import { htmlToText } from 'html-to-text';
 
-interface EmailOptions {
+interface User {
   email: string;
-  subject: string;
-  message: string;
+  name: string;
 }
 
-const sendEmail = async (options: EmailOptions) => {
-  //1) Create a transporter
+export class Email {
+  to: string;
+  firstName: string;
+  url: string;
+  from: string;
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: Number(process.env.EMAIL_PORT),
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
-  //2)Define the email options
+  //new Email(user,url).sendWelcome();
+  constructor(user: User, url: string) {
+    this.to = user.email;
+    this.firstName = user.name.split(' ')[0];
+    this.url = url;
+    this.from = `Chamara Perera <${process.env.EMAIL_FROM}>`;
+  }
 
-  const mailOptions = {
-    from: 'Chamara Perera <hello@plexral.net>',
-    to: options.email,
-    subject: options.subject,
-    text: options.message,
-    // html:
-  };
-  //3) Actually send the email
-  await transporter.sendMail(mailOptions);
-};
+  newTransport() {
+    if (process.env.NODE_ENV === 'production') {
+      return nodemailer.createTransport({
+        service: 'SendInBlue',
+        auth: {
+          user: process.env.SENDINBLUE_USERNAME,
+          pass: process.env.SENDINBLUE_PASSWORD,
+        },
+      });
+    }
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: Number(process.env.EMAIL_PORT),
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+  }
 
-export default sendEmail;
+  async send(template: string, subject: string) {
+    //1) Render HTML based on a pug template
+    const html = pug.renderFile(
+      `${__dirname}/views/email/${template}.pug`,
+
+      {
+        firstName: this.firstName,
+        url: this.url,
+        subject,
+      }
+    );
+    //2)Define mail options
+    const mailOptions = {
+      from: this.from,
+      to: this.to,
+      subject, //same as subject:subject
+      html, //same as html:html
+      text: htmlToText(html),
+    };
+    //3) Create a transport and send email
+
+    await this.newTransport().sendMail(mailOptions);
+  }
+
+  async sendWelcome() {
+    await this.send('Welcome', 'Welcome to the Nature Sights Family');
+  }
+
+  async sendPasswordReset() {
+    await this.send(
+      'passwordReset',
+      'Your password reset token (valid for only 10 minutes)'
+    );
+  }
+}

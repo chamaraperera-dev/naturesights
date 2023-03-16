@@ -22,6 +22,7 @@ import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import reviewRouter from './routes/reviewRoutes';
 import viewRouter from './routes/viewRoutes';
+import bookingRouter from './routes/bookingRoutes';
 
 //1.GLOBAL MIDDLEWARES
 
@@ -101,6 +102,8 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 app.use('/api/v1/reviews', reviewRouter);
+
+app.use('/api/v1/bookings', bookingRouter);
 
 //Below code should be the last part of the route
 
