@@ -264,11 +264,11 @@ tourSchema.pre('aggregate', function (this: any, next) {
 });
 
 //This will run after the query has been executed
-tourSchema.post(/^find/, function (docs, next) {
+/* tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - start} milliseconds`);
   // console.log(docs);
   next();
-});
+}); */
 
 //Creating model
 const Tour = mongoose.model<tourSchemaTypes>('Tour', tourSchema);

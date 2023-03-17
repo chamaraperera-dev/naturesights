@@ -5,7 +5,7 @@ import esbuild from 'esbuild';
 const context = await esbuild.context({
   entryPoints: ['src/server.ts'],
   bundle: true,
-  minify: false,
+  minify: true,
   platform: 'node', // for CJS
   outdir: 'dist',
   packages: 'external',

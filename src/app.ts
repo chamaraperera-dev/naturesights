@@ -10,6 +10,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 //Exporting app to supertest
 const app = express();
 
@@ -81,6 +82,9 @@ app.use(
     ],
   })
 );
+
+//Compress the text sent to the client
+app.use(compression());
 
 //Need to use app.use to write middleware and there has to be a third argument (convention is next)
 //Never forget to use next() in the middleware

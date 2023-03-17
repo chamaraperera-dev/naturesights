@@ -4,10 +4,11 @@ import { showAlert } from './alerts';
 //type is either 'password' or 'data'
 export const updateSettings = async (data: object, type: string) => {
   try {
+    // If we are using website and api in the same url then we can use relative url
     const url =
       type === 'password'
-        ? 'http://localhost:3000/api/v1/users/updateMyPassword'
-        : 'http://localhost:3000/api/v1/users/updateMe';
+        ? '/api/v1/users/updateMyPassword'
+        : '/api/v1/users/updateMe';
     const res = await axios({
       method: 'PATCH',
       url,

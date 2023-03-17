@@ -144,11 +144,11 @@ userSchema.methods.createPasswordResetToken = function () {
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
-  console.log(
+  /*   console.log(
     { resetToken },
     this.passwordResetToken,
     this.passwordResetExpires.toLocaleTimeString('en-US')
-  );
+  ); */
   //Returning plain text token
   //We are sending the unencrypted version
   //We are saving the encrypted password in the database
