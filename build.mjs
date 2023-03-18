@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import esbuild from 'esbuild';
 
-const context = await esbuild.context({
+await esbuild.build({
   entryPoints: ['src/server.ts'],
   bundle: true,
   minify: true,
@@ -12,4 +12,14 @@ const context = await esbuild.context({
 });
 
 // Enable watch mode
-await context.watch();
+
+// await esbuild.context({
+//   entryPoints: ['src/server.ts'],
+//   bundle: true,
+//   minify: true,
+//   platform: 'node', // for CJS
+//   outdir: 'dist',
+//   packages: 'external',
+// });
+
+// await context.watch();
