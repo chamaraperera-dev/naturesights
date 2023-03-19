@@ -14,6 +14,8 @@ import compression from 'compression';
 //Exporting app to supertest
 const app = express();
 
+app.enable('trust proxy');
+
 app.set('view engine', 'pug');
 // Better to use the path using path module instead of below code
 // app.set('views','./views');

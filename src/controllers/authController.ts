@@ -32,7 +32,12 @@ const signToken = (id: any) => {
   });
 };
 
-const createSendToken = (user: any, statusCode: number, res: Response) => {
+const createSendToken = (
+  user: any,
+  statusCode: number,
+  req: Request,
+  res: Response
+) => {
   const token = signToken(user._id);
 
   //Need to set JWT_COOKIE_EXPIRES_IN=90 (Not 90d) because we need to convert it to milliseconds
@@ -45,13 +50,12 @@ const createSendToken = (user: any, statusCode: number, res: Response) => {
 
     //Cookie cannot be accessed or modified by the browser to prevent cross-site scripting attacks
     httpOnly: true,
+    //Checking if the request is secure
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
   };
 
   //In Typescript set secure property in  the new object conditionally in production environment
   //Otherwise we cannot test it in development because we are not using a browser
-  if (process.env.NODE_ENV === 'production')
-    ///In Javascript without typescript we can write cookieOptions.secure = true;
-    Object.assign(cookieOptions, { secure: true });
 
   res.cookie('jwt', token, cookieOptions);
 
@@ -109,7 +113,7 @@ export const signup = catchAsync(async (req, res, next) => {
     );
   }
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 export const verifyEmail: RequestHandler = catchAsync(
@@ -163,7 +167,7 @@ export const login: RequestHandler = catchAsync(async (req, res, next) => {
 
   //3) if everything is ok, send token to client
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 export const logout: RequestHandler = (req, res, next) => {
@@ -397,7 +401,7 @@ export const resetPassword: RequestHandler = catchAsync(
 
     //Log the user in, sent JWT
 
-    createSendToken(user, 200, res);
+    createSendToken(user, 200, req, res);
   }
 );
 
@@ -435,7 +439,7 @@ export const updatePassword: RequestHandler = catchAsync(
 
     //4)Log user in ,send JWT
 
-    createSendToken(user, 200, res);
+    createSendToken(user, 200, req, res);
   }
 );
 

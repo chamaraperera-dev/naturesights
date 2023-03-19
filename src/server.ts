@@ -37,3 +37,9 @@ process.on('unhandledRejection', (err: any) => {
   //Gives time to server to handle the requests
   server.close(() => process.exit(1));
 });
+
+//Preventing server shutting down abruptly with SIGTERM signal allowing pending requesting to process
+process.on('SIGTERM', () => {
+  console.log('SIGTERM RECEIVED. Shutting down gracefully');
+  server.close(() => console.log('Process terminated'));
+});
