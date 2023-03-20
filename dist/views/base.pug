@@ -9,8 +9,8 @@ html
       link(rel='stylesheet',href ='https://fonts.googleapis.com/css?family=Lato:300,300i,700')
       title Nature Sights | #{title}
       
-
-  body
+  //-Add alert message to body if there is one
+  body(data-alert=`${alert ?alert:''}`)
 
   //HEADER
   include _header

@@ -42,7 +42,9 @@ export const getCheckoutSession: RequestHandler = catchAsync(
           },
         ],
         mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/my-tours`,
+        success_url: `${req.protocol}://${req.get(
+          'host'
+        )}/my-tours?alert=booking`,
         // success_url: `${req.protocol}://${req.get('host')}/?tour=${
         //   req.params.tourId
         // }&user=${req.user.id}&price=${tour.price}`,

@@ -4,6 +4,8 @@ import * as authController from '../controllers/authController';
 
 const router = express.Router();
 
+router.use(viewsController.alerts);
+
 //using the isLoggedIn middleware to check if the user is logged in or not with every request
 
 router.get(

@@ -6,6 +6,14 @@ import catchAsync from '../utils/catchAsync';
 import { RequestHandler } from 'express';
 import AppError from '../utils/appError';
 
+export const alerts: RequestHandler = (req, res, next) => {
+  const { alert } = req.query;
+  if (alert === 'booking')
+    res.locals.alert =
+      'Your booking was successful! Please check your email for a confirmation. If your booking does not show up here immediately, please come back later.';
+  next();
+};
+
 export const getOverview: RequestHandler = catchAsync(
   async (req, res, next) => {
     // 1) Get tour data from collection
