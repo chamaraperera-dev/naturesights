@@ -27,6 +27,7 @@ import userRouter from './routes/userRoutes';
 import reviewRouter from './routes/reviewRoutes';
 import viewRouter from './routes/viewRoutes';
 import bookingRouter from './routes/bookingRoutes';
+import * as bookingController from './controllers/bookingController';
 
 //1.GLOBAL MIDDLEWARES
 
@@ -67,6 +68,14 @@ const limiter = rateLimit({
 
 //Apply to the all the routs starting with api
 app.use('/api', limiter);
+
+//Stripe need the body as raw form as as string and not as json
+//So we need to exclude the webhook from the body parser (express.json())
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
 
 //Body parser, reading data from body into req.body
 //Setting the size of the body to 10kb

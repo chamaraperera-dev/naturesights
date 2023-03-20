@@ -9,7 +9,8 @@ const router = express.Router();
 
 router.get(
   '/',
-  bookingController.createBookingCheckout,
+  //No need to use below function because we are using stripe webhooks
+  // bookingController.createBookingCheckout,
   authController.isLoggedIn,
   viewsController.getOverview
 );
