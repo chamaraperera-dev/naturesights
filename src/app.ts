@@ -11,6 +11,7 @@ import xss from 'xss-clean';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
+import cors from 'cors';
 //Exporting app to supertest
 const app = express();
 
@@ -28,6 +29,18 @@ import viewRouter from './routes/viewRoutes';
 import bookingRouter from './routes/bookingRoutes';
 
 //1.GLOBAL MIDDLEWARES
+
+//Implementing CORS
+
+app.use(cors());
+//Access-Control-Allow-Origin *
+// api.naturesights.com, front-end naturesights.com
+// app.use(cors({ origin: 'https://www.naturesights.com' }));
+
+app.options('*', cors());
+
+//To allow only certain routes
+// app.options('/api/v1/tours/:id', cors());
 
 //Serving static files
 // app.use(express.static(`${__dirname}/public`));
