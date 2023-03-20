@@ -16,6 +16,7 @@
     "debug": "node --inspect ./dist/server.js ",
     "lint": "eslint --ext .js,.ts .",
     "build": "node build.mjs",
+    "watch": "node watch.mjs",
     "test": "jest --watchAll --detectOpenHandles",
     "watch:js": "parcel watch ./src/public/js/index.ts --dist-dir ./dist/public/js",
     "build:js": "parcel build ./src/public/js/index.ts --dist-dir ./dist/public/js"

@@ -220,11 +220,11 @@ tourSchema.post('save', function (doc, next) {
 
 // tourSchema.pre('find', function (next) {
 
-const start = Date.now();
-tourSchema.pre(/^find/, function (next) {
-  this.find({ secretTour: { $ne: true } });
-  next();
-});
+// const start = Date.now();
+// tourSchema.pre(/^find/, function (next) {
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
 
 // tourSchema.pre('findOne', function (next) {
 //   this.find({ secretTour: { $ne: true } });

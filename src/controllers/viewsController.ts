@@ -2,6 +2,7 @@
 import Tour from '../models/tourModel';
 import User from '../models/userModel';
 import Booking from '../models/bookingModel';
+import Review from '../models/reviewModel';
 import catchAsync from '../utils/catchAsync';
 import { RequestHandler } from 'express';
 import AppError from '../utils/appError';
@@ -90,3 +91,12 @@ export const getMyTours: RequestHandler = catchAsync(async (req, res, next) => {
   const tours = await Tour.find({ _id: { $in: tourIDs } });
   res.status(200).render('overview', { title: 'My Tours', tours });
 });
+
+export const getMyReviews: RequestHandler = catchAsync(
+  async (req, res, next) => {
+    //1)Find all reviews
+    //Virtually populated the tour field in the review model
+    const reviews = await Review.find({ user: req.user.id });
+    res.status(200).render('reviews', { title: 'My Reviews', reviews });
+  }
+);
