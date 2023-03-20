@@ -7,12 +7,11 @@ import User from '../models/userModel';
 import Booking from '../models/bookingModel';
 import * as factory from './handleFactory';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2022-11-15',
-});
-
 export const getCheckoutSession: RequestHandler = catchAsync(
   async (req, res, next) => {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+      apiVersion: '2022-11-15',
+    });
     //Environment variable is not defined if we use below code outside of the function
 
     //1)Get the currently booked tour
@@ -90,6 +89,10 @@ const createBookingCheckout = async (session: any) => {
 };
 
 export const webhookCheckout: RequestHandler = (req, res, next) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: '2022-11-15',
+  });
+
   //Headers are stored as key-value pairs in a JavaScript object, and to access the value of a header you need to use bracket notation with the header name as the key
   const signature = req.headers['stripe-signature'];
   let event;
