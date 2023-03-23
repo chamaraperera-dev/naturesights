@@ -79,39 +79,20 @@ export const signup = catchAsync(async (req, res, next) => {
     photo: req.body.photo,
   });
 
-  const url = `${req.protocol}://${req.get('host')}/me`;
-
-  //Send welcome is an async function so we have to await
-  await new Email(newUser, url).sendWelcome();
-
   const verifyToken = newUser.verifyEmailToken();
 
   await newUser.save({ validateModifiedOnly: true });
 
+  const url = `${req.protocol}://${req.get('host')}/me`;
+
   const confirmURL = `${req.protocol}://${req.get(
     'host'
-  )}/api/v1/users/verifyEmail/${verifyToken}`;
+  )}/email-confirm/${verifyToken}`;
 
-  const message = `Please go to this link to verify your email :${confirmURL}.\n If you didn't create an account,
-  please ignore this email`;
   //Send email will return a promise .Therefore we need to await
 
-  try {
-    // await Email({
-    //   email: newUser.email,
-    //   subject: 'Your email confirm token',
-    //   message,
-    // });
-  } catch (err) {
-    newUser.verifyToken = undefined;
-    await newUser.save({ validateModifiedOnly: true });
-    return next(
-      new AppError(
-        'There was an error sending the email. Try again later!',
-        500
-      )
-    );
-  }
+  //Send welcome is an async function so we have to await
+  await new Email(newUser, url, confirmURL).sendWelcome();
 
   createSendToken(newUser, 201, req, res);
 });
@@ -351,7 +332,7 @@ export const forgotPassword: RequestHandler = catchAsync(
     try {
       const resetURL = `${req.protocol}://${req.get(
         'host'
-      )}/api/v1/users/resetPassword/${resetToken}`;
+      )}/reset-password/${resetToken}`;
       await new Email(user, resetURL).sendPasswordReset();
       res
         .status(200)
@@ -457,3 +438,30 @@ export const checkIfOwner: RequestHandler = catchAsync(
     next();
   }
 );
+
+export const isVerified: RequestHandler = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    verifyToken: hashedToken,
+  }).select('+verified');
+
+  if (!user) {
+    return next(new AppError('The token is invalid or has expired', 400));
+  }
+
+  if (user.verified) {
+    return next(new AppError('Email address has already been verified', 400));
+  }
+
+  user.verified = true;
+
+  await user.save({ validateModifiedOnly: true });
+
+  res.locals.user = user;
+
+  next();
+});

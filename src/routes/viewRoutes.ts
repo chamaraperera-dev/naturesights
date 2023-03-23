@@ -28,6 +28,16 @@ router.get('/my-tours', authController.protect, viewsController.getMyTours);
 
 router.get('/my-reviews', authController.protect, viewsController.getMyReviews);
 
+router.get('/forgot-password', viewsController.getForgotPasswordForm);
+
+router.get(
+  '/email-confirm/:token',
+  authController.isVerified,
+  viewsController.verifyEmail
+);
+
+router.get('/reset-password/:token', viewsController.getResetPasswordForm);
+
 // router.post(
 //   '/submit-user-data',
 //   authController.protect,

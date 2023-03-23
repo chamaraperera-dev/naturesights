@@ -6,12 +6,14 @@ import Review from '../models/reviewModel';
 import catchAsync from '../utils/catchAsync';
 import { RequestHandler } from 'express';
 import AppError from '../utils/appError';
+import * as authController from '../controllers/authController';
 
 export const alerts: RequestHandler = (req, res, next) => {
   const { alert } = req.query;
   if (alert === 'booking')
     res.locals.alert =
       'Your booking was successful! Please check your email for a confirmation. If your booking does not show up here immediately, please come back later.';
+
   next();
 };
 
@@ -62,6 +64,10 @@ export const getAccount: RequestHandler = (req, res) => {
   res.status(200).render('account', { title: 'Your account' });
 };
 
+export const verifyEmail: RequestHandler = (req, res) => {
+  res.status(200).render('verifiedEmail', { title: 'Email Verification' });
+};
+
 // export const updateUserData: RequestHandler = catchAsync(
 //   async (req, res, next) => {
 //     console.log('UPDATING USER', req.body);
@@ -100,3 +106,13 @@ export const getMyReviews: RequestHandler = catchAsync(
     res.status(200).render('reviews', { title: 'My Reviews', reviews });
   }
 );
+
+export const getForgotPasswordForm: RequestHandler = (req, res) => {
+  res.status(200).render('forgotPassword', { title: 'Forgot Password' });
+};
+
+export const getResetPasswordForm: RequestHandler = (req, res) => {
+  const { token } = req.params;
+  res.locals.token = token;
+  res.status(200).render('resetPassword', { title: 'Reset Password' });
+};

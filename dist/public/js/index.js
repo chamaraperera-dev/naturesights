@@ -563,12 +563,16 @@ var _updateSettings = require("./updateSettings");
 var _mapbox = require("./mapbox");
 var _stripe = require("./stripe");
 var _alerts = require("./alerts");
+var _forgotPassword = require("./forgotPassword");
+var _resetPassword = require("./resetPassword");
 // DOM ELEMENTS
 const mapBox = document.getElementById("map");
 const loginForm = document.querySelector(".form--login");
 const logOutBtn = document.querySelector(".nav__el--logout");
 const updateDataForm = document.querySelector(".form-user-data");
 const updatePasswordForm = document.querySelector(".form-user-password");
+const forgotPasswordForm = document.querySelector(".form--forgot-password");
+const resetPasswordForm = document.querySelector(".form--reset-password");
 const signUpForm = document.querySelector(".form--signup");
 const bookBtn = document.getElementById("book-tour");
 if (loginForm) loginForm.addEventListener("submit", (e)=>{
@@ -650,6 +654,21 @@ if (signUpForm) signUpForm.addEventListener("submit", (e)=>{
     const passwordConfirm = document.getElementById("password-confirm").value;
     (0, _signup.signup)(name, email, password, passwordConfirm);
 });
+if (forgotPasswordForm) forgotPasswordForm.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    (0, _forgotPassword.forgotPassword)(email);
+});
+if (resetPasswordForm) resetPasswordForm.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const password = document.getElementById("password").value;
+    const passwordConfirm = document.getElementById("password-confirm").value;
+    const element = document.getElementById("get-token");
+    if (element) {
+        const token = element.dataset.token;
+        (0, _resetPassword.resetPassword)(password, passwordConfirm, token);
+    }
+});
 if (bookBtn) bookBtn.addEventListener("click", (e)=>{
     e.target.textContent = "Processing...";
     //To access data attribute in tour.pug template
@@ -659,7 +678,7 @@ if (bookBtn) bookBtn.addEventListener("click", (e)=>{
 const alertMessage = document.querySelector("body")?.dataset.alert;
 if (alertMessage) (0, _alerts.showAlert)("success", alertMessage, 20);
 
-},{"./login":"6dqeT","./signup":"il96S","./updateSettings":"9yphJ","./mapbox":"j7d0A","./stripe":"1oU1B","./alerts":"glLIK"}],"6dqeT":[function(require,module,exports) {
+},{"./login":"6dqeT","./signup":"il96S","./updateSettings":"9yphJ","./mapbox":"j7d0A","./stripe":"1oU1B","./alerts":"glLIK","./forgotPassword":"ceRIp","./resetPassword":"a8fdt"}],"6dqeT":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "login", ()=>login);
@@ -4881,7 +4900,7 @@ const signup = async (name, email, password, passwordConfirm)=>{
     try {
         const res = await (0, _axiosDefault.default)({
             method: "POST",
-            url: "http://localhost:3000/api/v1/users/signup",
+            url: "/api/v1/users/signup",
             data: {
                 name,
                 email,
@@ -4937,6 +4956,8 @@ const displayMap = (locations)=>{
         //Disable map zoom when using scroll
         scrollZoom: false
     });
+    // Add zoom and rotation controls to the map.
+    map.addControl(new (0, _mapboxGlJsDefault.default).NavigationControl());
     const bounds = new (0, _mapboxGlJsDefault.default).LngLatBounds();
     locations.forEach((loc)=>{
         // Create  marker
@@ -4950,7 +4971,8 @@ const displayMap = (locations)=>{
         }).setLngLat(loc.coordinates).addTo(map);
         // Add popup
         new (0, _mapboxGlJsDefault.default).Popup({
-            offset: 30
+            offset: 30,
+            focusAfterOpen: false
         }).setLngLat(loc.coordinates).setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`).addTo(map);
         // Extend map bounds to include current location
         bounds.extend(loc.coordinates);
@@ -34975,6 +34997,61 @@ var loadStripe = function loadStripe() {
     });
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"cW5xg"}]},["jDfqo","GOFTF"], "GOFTF", "parcelRequirea7c0")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"cW5xg"}],"ceRIp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "forgotPassword", ()=>forgotPassword);
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+var _alerts = require("./alerts");
+const forgotPassword = async (email)=>{
+    try {
+        const res = await (0, _axiosDefault.default)({
+            method: "POST",
+            url: "/api/v1/users/forgotPassword",
+            data: {
+                email
+            }
+        });
+        if (res.data.status === "success") {
+            (0, _alerts.showAlert)("success", "Email sent successfully. Please check your email for to reset your password.");
+            window.setTimeout(()=>{
+                location.assign("/");
+            }, 3000);
+        }
+    } catch (err) {
+        (0, _alerts.showAlert)("error", err.response.data.message);
+    }
+};
+
+},{"axios":"7F4BA","./alerts":"glLIK","@parcel/transformer-js/src/esmodule-helpers.js":"cW5xg"}],"a8fdt":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "resetPassword", ()=>resetPassword);
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+var _alerts = require("./alerts");
+const resetPassword = async (password, passwordConfirm, token)=>{
+    try {
+        const res = await (0, _axiosDefault.default)({
+            method: "PATCH",
+            url: `/api/v1/users/resetPassword/${token}`,
+            data: {
+                password,
+                passwordConfirm
+            }
+        });
+        if (res.data.status === "success") {
+            (0, _alerts.showAlert)("success", "Password reset successfully!");
+            window.setTimeout(()=>{
+                location.assign("/");
+            }, 3000);
+        }
+    } catch (err) {
+        (0, _alerts.showAlert)("error", err.response.data.message);
+    }
+};
+
+},{"axios":"7F4BA","./alerts":"glLIK","@parcel/transformer-js/src/esmodule-helpers.js":"cW5xg"}]},["jDfqo","GOFTF"], "GOFTF", "parcelRequirea7c0")
 
 //# sourceMappingURL=index.js.map

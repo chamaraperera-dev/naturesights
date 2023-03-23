@@ -11,13 +11,15 @@ export class Email {
   to: string;
   firstName: string;
   url: string;
+  confirmURL: any;
   from: string;
 
   //new Email(user,url).sendWelcome();
-  constructor(user: User, url: string) {
+  constructor(user: User, url: string, confirmURL: any = null) {
     this.to = user.email;
     this.firstName = user.name.split(' ')[0];
     this.url = url;
+    this.confirmURL = confirmURL;
     this.from = `Chamara Perera <${process.env.EMAIL_FROM}>`;
   }
 
@@ -49,6 +51,7 @@ export class Email {
       {
         firstName: this.firstName,
         url: this.url,
+        confirmURL: this.confirmURL,
         subject,
       }
     );

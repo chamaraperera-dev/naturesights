@@ -21,6 +21,9 @@ export const displayMap = (locations: Location[]) => {
     interactive: false, */
   });
 
+  // Add zoom and rotation controls to the map.
+  map.addControl(new mapboxgl.NavigationControl());
+
   const bounds = new mapboxgl.LngLatBounds();
 
   locations.forEach((loc) => {
@@ -34,7 +37,7 @@ export const displayMap = (locations: Location[]) => {
 
       .addTo(map);
     // Add popup
-    new mapboxgl.Popup({ offset: 30 })
+    new mapboxgl.Popup({ offset: 30, focusAfterOpen: false })
       .setLngLat(loc.coordinates)
       .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
       .addTo(map);

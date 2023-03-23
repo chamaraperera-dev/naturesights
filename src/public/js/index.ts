@@ -4,6 +4,8 @@ import { updateSettings } from './updateSettings';
 import { displayMap } from './mapbox';
 import { bookTour } from './stripe';
 import { showAlert } from './alerts';
+import { forgotPassword } from './forgotPassword';
+import { resetPassword } from './resetPassword';
 
 interface Location {
   day: number;
@@ -17,6 +19,8 @@ const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const updateDataForm = document.querySelector('.form-user-data');
 const updatePasswordForm = document.querySelector('.form-user-password');
+const forgotPasswordForm = document.querySelector('.form--forgot-password');
+const resetPasswordForm = document.querySelector('.form--reset-password');
 const signUpForm = document.querySelector('.form--signup');
 const bookBtn = document.getElementById('book-tour');
 
@@ -152,6 +156,31 @@ if (signUpForm) {
       document.getElementById('password-confirm') as HTMLInputElement
     ).value;
     signup(name, email, password, passwordConfirm);
+  });
+}
+
+if (forgotPasswordForm) {
+  forgotPasswordForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    forgotPassword(email);
+  });
+}
+
+if (resetPasswordForm) {
+  resetPasswordForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const password = (document.getElementById('password') as HTMLInputElement)
+      .value;
+    const passwordConfirm = (
+      document.getElementById('password-confirm') as HTMLInputElement
+    ).value;
+
+    const element = document.getElementById('get-token');
+    if (element) {
+      const token = element.dataset.token as string;
+      resetPassword(password, passwordConfirm, token);
+    }
   });
 }
 
