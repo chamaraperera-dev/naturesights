@@ -20,7 +20,7 @@ export class Email {
     this.firstName = user.name.split(' ')[0];
     this.url = url;
     this.confirmURL = confirmURL;
-    this.from = `Chamara Perera <${process.env.EMAIL_FROM}>`;
+    this.from = `Nature Sights <${process.env.EMAIL_FROM}>`;
   }
 
   newTransport() {
@@ -44,6 +44,7 @@ export class Email {
   }
 
   async send(template: string, subject: string) {
+    console.log(__dirname);
     //1) Render HTML based on a pug template
     const html = pug.renderFile(
       `${__dirname}/views/email/${template}.pug`,
