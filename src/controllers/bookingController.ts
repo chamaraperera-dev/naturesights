@@ -83,7 +83,7 @@ export const getCheckoutSession: RequestHandler = catchAsync(
 const createBookingCheckout = async (session: any) => {
   const tour = session.client_reference_id;
   //Getting the user id from the email
-  const user = (await User.findOne({ email: session.customer_email }))?.id;
+  const user = (await User.findOne({ email: session.customer_email }))?._id;
 
   const price = session.amount_total / 100;
 
