@@ -69,6 +69,13 @@ const createSendToken = (
 };
 
 export const signup = catchAsync(async (req, res, next) => {
+  const existingUser = await User.findOne({ email: req.body.email });
+  if (existingUser) {
+    return next(
+      new AppError('You already have an account. Please Log In', 400)
+    );
+  }
+
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
