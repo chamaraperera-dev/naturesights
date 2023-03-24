@@ -44,7 +44,6 @@ export class Email {
   }
 
   async send(template: string, subject: string) {
-    console.log(__dirname);
     //1) Render HTML based on a pug template
     const html = pug.renderFile(
       `${__dirname}/views/email/${template}.pug`,
@@ -70,7 +69,7 @@ export class Email {
   }
 
   async sendWelcome() {
-    await this.send('Welcome', 'Welcome to the Nature Sights Family');
+    await this.send('welcome', 'Welcome to the Nature Sights Family');
   }
 
   async sendPasswordReset() {
