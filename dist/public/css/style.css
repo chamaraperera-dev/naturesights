@@ -571,6 +571,7 @@ body {
   -o-object-fit: cover;
   object-fit: cover;
 }
+
 .picture-box__img--1 {
   padding-top: 15%;
 }
@@ -603,13 +604,10 @@ body {
   }
 
   .picture-box__img--1 {
-    padding-top: 50%;
+    padding-bottom: 2%;
   }
   .picture-box__img--2 {
-    padding-top: 50%;
-  }
-  .picture-box__img--3 {
-    padding-top: 50%;
+    padding-bottom: 2%;
   }
 }
 

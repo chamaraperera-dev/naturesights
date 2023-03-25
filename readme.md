@@ -1,6 +1,7 @@
 # Naturesights Application Documentation
 
 Naturesights is a web application that allows users to book tours and view information about available tours. The application was built using modern technologies such as Node.js, Express, MongoDB, Mongoose, and TypeScript, with MVC Architecture implemented.
+Server-side rendering implemented using Pug templates.
 
 ## Table of Contents
 

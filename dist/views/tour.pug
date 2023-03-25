@@ -72,8 +72,8 @@ block content
     each img,i in tour.images 
       //-Using index to get unique number for the images and adding class later 
       .picture-box
-        img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} Tour ${i+1}`)
-        class=`picture-box__img--${i+1}`
+        img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} Tour ${i+1}`,
+        class=`picture-box__img--${i+1}`)
 
   section.section-map
     //- Adding data attribute to the div to pass the location to the mapbox.js
