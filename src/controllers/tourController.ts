@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // const fs = require('fs');
+import path from 'path';
 import multer from 'multer';
 import sharp from 'sharp';
 import { Request, Response, NextFunction } from 'express';
@@ -53,7 +54,9 @@ export const resizeTourImages: RequestHandler = catchAsync(
         .resize(2000, 1333)
         .toFormat('jpeg')
         .jpeg({ quality: 90 })
-        .toFile(`dist/public/img/tours/${req.body.imageCover}`);
+        .toFile(
+          path.join(__dirname, 'public', 'img', 'tours', req.body.imageCover)
+        );
     }
 
     //2)Images
@@ -73,7 +76,7 @@ export const resizeTourImages: RequestHandler = catchAsync(
             .resize(2000, 1333)
             .toFormat('jpeg')
             .jpeg({ quality: 90 })
-            .toFile(`dist/public/img/tours/${filename}`);
+            .toFile(path.join(__dirname, 'public', 'img', 'tours', filename));
 
           req.body.images.push(filename);
         })

@@ -7,6 +7,7 @@ import { RequestHandler } from 'express';
 import { Request } from 'express';
 import AppError from '../utils/appError';
 import * as factory from './handleFactory';
+import path from 'path';
 
 // cb callback function is similar to next function in express
 
@@ -44,13 +45,18 @@ export const resizeUserPhoto: RequestHandler = catchAsync(
     //Need to allocate file name to req.file.filename because we are using it in the updateMe middleware
     req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
 
+    console.log(__dirname);
+
     //Reading file from the memory
     await sharp(req.file.buffer)
       .resize(500, 500)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
       //Need full file path to store the image
-      .toFile(`dist/public/img/users/${req.file.filename}`);
+      .toFile(
+        path.join(__dirname, 'public', 'img', 'users', req.file.filename)
+      );
+
     next();
   }
 );
