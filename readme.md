@@ -12,13 +12,45 @@ Server-side rendering implemented using Pug templates.
 
 ## Getting Started
 
-To get started with the Naturesights application, follow these steps:
+### Environment Variables
 
-1. Clone the repository from [Github](https://github.com/chamaraperera-dev/naturesights.git).
-2. Install the required dependencies using the `npm install` command.
-3. Run `npm run build` to compile the application using ESbuild.
-4. Run `npm run build:js` to minify polyfilling and bundling using Parcel.
-5. Run `npm run start` to start the application.
+To run the Naturesights application, you need to include a `.env` file in the root directory of the project with the following environment variables:
+
+The following environment variables need to be set:
+
+- `NODE_ENV`: the environment the app is running in (e.g. `production`)
+- `PORT`: the port number the app should run on
+- `DATABASE`: the URL of the MongoDB database
+- `DATABASE_PASSWORD`: the password for the MongoDB database
+- `JWT_SECRET`: the secret key for JWT authentication
+- `JWT_EXPIRES_IN`: the expiration time for JWT tokens
+- `JWT_COOKIE_EXPIRES_IN`: the expiration time for JWT cookies
+- `EMAIL_FROM`: the email address for sending emails
+- `SENDINBLUE_USERNAME`: the username for Sendinblue email service
+- `SENDINBLUE_PASSWORD`: the password for Sendinblue email service
+- `STRIPE_SECRET_KEY`: the secret key for Stripe payment service
+- `STRIPE_WEBHOOK_SECRET`: the webhook secret for Stripe payment service
+
+To clone the repository from Github and install the required dependencies, run the following commands:
+
+```shell
+$ git clone https://github.com/chamaraperera-dev/naturesights.git
+$ cd naturesights
+$ npm install
+```
+
+To compile the application using ESbuild and minify polyfilling and bundling using Parcel, run the following commands:
+
+```shell
+$ npm run build
+$ npm run build:js
+```
+
+Finally, to start the application, run the following command:
+
+```shell
+$ npm run start
+```
 
 ## Features
 
@@ -35,7 +67,7 @@ The Naturesights application comes with several features, including:
 - **Uploading user profile photos and Tour images using Multer**: Users can upload their profile photos and tour images using Multer.
 - **Connecting to the API using Axios**: The application connects to the API using Axios.
 - **Booking Tours**: Users can book tours.
-- **Payment processing using Stripe webhooks**: Stripe webhooks are used for payment processing. Test credit card 4242 4242 4242 4242 can be used for testing.
+- **Payment processing using Stripe webhooks**: Stripe webhooks are used for payment processing. Test credit card number 4242 4242 4242 4242 with random expiry date and cvv can be used for testing.
 - **Integration of maps using Mapbox**: Maps are integrated into the application using Mapbox.
 - **Separate Error handling for production and development environments using Express**: Error handling is implemented for both production and development environments using Express.
 
